@@ -1,8 +1,6 @@
 -- // Package
 
 local Snacky = { }
-local HintObject = { }
-
 local Packages = script.Parent
 
 -- // Variables
@@ -15,24 +13,25 @@ local Signal = require(Packages.signal)
 local Player = PlayerService.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
-local HintScreenGui = require(script.UIElements.Hints)
-local HintObjectGui = require(script.UIElements.HintObject)
+local Snackbar = require(script.UIElements.Snackbar)
+local SnackbarApp = require(script.UIElements.SnackbarApp)
+local SnackbarFrame = SnackbarApp.SnackbarFrame
 
 local BackpackConnections = { }
 
-local HintInTweenInfoDefault = TweenInfo.new(
-	0.8,
+local SnackbarInTweenInfoDefault = TweenInfo.new(
+	0.65,
 	Enum.EasingStyle.Quad,
 	Enum.EasingDirection.In
 )
 
-local HintOutTweenInfoDefault = TweenInfo.new(
-	0.8,
+local SnackbarOutTweenInfoDefault = TweenInfo.new(
+	0.65,
 	Enum.EasingStyle.Quad,
 	Enum.EasingDirection.Out
 )
 
-local HintBroadcastAreas = {
+local SnackbarBroadcastAreas = {
 	"LeftFrame",
 	"CenterFrame",
 	"RightFrame"
@@ -49,36 +48,29 @@ Snacky.BroadcastArea = {
 	Right = 3,
 }
 
-Snacky.BroadcastTime = {
-	Infinite = 1,
-	Set = 2,
-}
-
-type HintProps = {
+type SnackbarProps = {
 	Area: number?,
 	Style: number?,
-	Time: number?,
 	TweenStyle: Enum.EasingStyle?,
 	TweenTime: number?,
 	Name: string,
 }
 
-HintObject.__index = HintObject
+Snacky.__index = Snacky
 
-HintScreenGui.Parent = PlayerGui
-HintScreenGui.Archivable = false
+SnackbarApp.Parent = PlayerGui
+SnackbarApp.Archivable = false
 
 -- // Functions
 
-function Snacky.CreateHint(properties: HintProps)
-	local self = setmetatable({ }, HintObject)
-	local HintClone = HintObjectGui:Clone()
+function Snacky.CreateSnackbar(properties: SnackbarProps)
+	local self = setmetatable({ }, Snacky)
+	local SnackbarClone = Snackbar:Clone()
 	
-	self._Element = HintClone
+	self._Element = SnackbarClone
 	
 	self.BroadcastArea = properties.Area or Snacky.BroadcastArea.Center
 	self.BroadcastStyle = properties.Style or Snacky.BroadcastStyle.Animated
-	self.BroadcastTime = properties.Time or Snacky.BroadcastTime.Set
 	self.BroadcastText = ""
 	self.CurrentBroadcastCancelled = false
 	self.CurrentlyBroadcasting = false
@@ -95,7 +87,10 @@ function Snacky.CreateHint(properties: HintProps)
 		[false] = nil,
 	}
 	
-	HintClone.Name = properties.Name
+	SnackbarClone.Name = properties.Name
+	SnackbarClone.Parent = SnackbarFrame:FindFirstChild(
+		SnackbarBroadcastAreas[self.BroadcastArea]
+	)
 	
 	if self.BroadcastStyle == Snacky.BroadcastStyle.Animated then
 		local TweenInfoToUse = {
@@ -116,8 +111,8 @@ function Snacky.CreateHint(properties: HintProps)
 				Enum.EasingDirection.Out
 			)
 		else
-			TweenInfoToUse.In = HintInTweenInfoDefault
-			TweenInfoToUse.Out = HintOutTweenInfoDefault
+			TweenInfoToUse.In = SnackbarInTweenInfoDefault
+			TweenInfoToUse.Out = SnackbarOutTweenInfoDefault
 		end
 		
 		self._Tweens[true] = {
@@ -134,7 +129,7 @@ function Snacky.CreateHint(properties: HintProps)
 	return self
 end
 
-function HintObject:SetStyle(properties: {
+function Snacky:SetStyle(properties: {
 		CornerRadius: number?,
 		TextColor3: number?,
 		BackgroundColor3: number?,
@@ -162,11 +157,11 @@ function HintObject:SetStyle(properties: {
 	end
 end
 
-function HintObject:SetOrder(order: number)
+function Snacky:SetOrder(order: number)
 	self._Element.LayoutOrder = order
 end
 
-function HintObject:BindToActivated(func: (inputType: Enum.UserInputType) -> ())
+function Snacky:BindToActivated(func: (inputType: Enum.UserInputType) -> ())
 	local Element: TextButton = self._Element
 	
 	Element.Active = true
@@ -177,7 +172,7 @@ function HintObject:BindToActivated(func: (inputType: Enum.UserInputType) -> ())
 	end)
 end
 
-function HintObject:UnbindFromActivated()
+function Snacky:UnbindFromActivated()
 	local Element: TextButton = self._Element
 	
 	Element.Active = false
@@ -187,7 +182,7 @@ function HintObject:UnbindFromActivated()
 	self._ActivatedConnection = nil
 end
 
-function HintObject:CancelBroadcast(destroy: boolean?)
+function Snacky:CancelBroadcast(destroy: boolean?)
 	local Element: TextButton = self._Element
 	
 	self.CurrentBroadcastCancelled = true
@@ -196,7 +191,6 @@ function HintObject:CancelBroadcast(destroy: boolean?)
 	if self.BroadcastStyle == Snacky.BroadcastStyle.Animated then
 		local TweenToPlay: {[string]: Tween} = self._Tweens[false]
 		
-
 		TweenToPlay.Background.Completed:Once(function()
 			Element.Visible = false
 			if destroy then
@@ -209,26 +203,19 @@ function HintObject:CancelBroadcast(destroy: boolean?)
 			tween:Play()
 		end
 	elseif self.BroadcastStyle == Snacky.BroadcastStyle.Static then
-		task.defer(function()
-			Element.Visible = true
-			task.wait(self._Tweens[false].Background.TweenInfo.Time)
-			Element.Visible = false
+		Element.Visible = false
+		self.CurrentlyBroadcasting = false
 
-			if destroy then
-				self:Destroy()
-			end
-		end)
+		if destroy then
+			self:Destroy()
+		end
 	end
 end
 
-function HintObject:Broadcast(broadcastText: string, broadcastTime: number?, destroyWhenFinished: boolean?)
+function Snacky:Broadcast(broadcastText: string, broadcastTime: number?, destroyWhenFinished: boolean?)
 	local Element: TextButton = self._Element
 	
 	Element.Text = broadcastText
-	Element.Parent = HintScreenGui.HintsFrame:FindFirstChild(
-		HintBroadcastAreas[self.BroadcastArea]
-	)
-	
 	self.BroadcastText = broadcastText
 	
 	task.defer(function()
@@ -242,6 +229,10 @@ function HintObject:Broadcast(broadcastText: string, broadcastTime: number?, des
 			for _, tween in TweenToPlay do
 				Element.Visible = true
 				tween:Play()
+			end
+
+			if not broadcastTime then
+				return
 			end
 
 			task.wait(broadcastTime + self._Tweens[true].Background.TweenInfo.Time)
@@ -260,15 +251,20 @@ function HintObject:Broadcast(broadcastText: string, broadcastTime: number?, des
 				end
 			end)
 
+			self.BroadcastFinished:Fire()
 			self.CurrentlyBroadcasting = false
 
 			for key, tween in NewTweenToPlay do
 				tween:Play()
 			end
-
-			self.BroadcastFinished:Fire()
 		elseif self.BroadcastStyle == Snacky.BroadcastStyle.Static then
 			Element.Visible = true
+			self.CurrentlyBroadcasting = true
+
+			if not broadcastTime then
+				return
+			end
+
 			task.wait(broadcastTime)
 			Element.Visible = false
 
@@ -277,6 +273,7 @@ function HintObject:Broadcast(broadcastText: string, broadcastTime: number?, des
 			end
 
 			self.BroadcastFinished:Fire()
+			self.CurrentlyBroadcasting = false
 
 			if destroyWhenFinished then
 				self:Destroy()
@@ -285,10 +282,10 @@ function HintObject:Broadcast(broadcastText: string, broadcastTime: number?, des
 	end)
 end
 
-function HintObject:Destroy()
+function Snacky:Destroy()
 	self._Element:Destroy()
 	
-	for _, prop in HintObject do
+	for _, prop in self do
 		if typeof(prop) == "RBXScriptConnection" then
 			prop:Disconnect()
 		end
@@ -308,7 +305,7 @@ Player.CharacterAdded:Connect(function(character)
 	
 	table.insert(BackpackConnections, Backpack.ChildAdded:Connect(function(child)
 		if child:IsA("Tool") then	
-			HintScreenGui.HintsFrame.CenterFrame.Padding.PaddingBottom = UDim.new(0, 70)
+			SnackbarFrame.CenterFrame.Padding.PaddingBottom = UDim.new(0, 70)
 		end
 	end))
 	
@@ -325,13 +322,13 @@ Player.CharacterAdded:Connect(function(character)
 			end
 			
 			if #Backpack:GetChildren() == 0 then
-				HintScreenGui.HintsFrame.CenterFrame.Padding.PaddingBottom = UDim.new(0, 10)
+				SnackbarFrame.CenterFrame.Padding.PaddingBottom = UDim.new(0, 10)
 			end
 		end
 	end))
 end)
 
-Snacky.new = Snacky.CreateHint
+Snacky.new = Snacky.CreateSnackbar
 
 -- // Actions
 

@@ -4,14 +4,14 @@ Hints.DisplayOrder = 1e+09
 Hints.ResetOnSpawn = false
 Hints.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-local HintsFrame = Instance.new("Frame")
-HintsFrame.Name = "HintsFrame"
-HintsFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-HintsFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-HintsFrame.BackgroundTransparency = 1
-HintsFrame.ClipsDescendants = true
-HintsFrame.Position = UDim2.fromScale(0.5, 0.5)
-HintsFrame.Size = UDim2.fromScale(1, 1)
+local SnackbarFrame = Instance.new("Frame")
+SnackbarFrame.Name = "SnackbarFrame"
+SnackbarFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+SnackbarFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+SnackbarFrame.BackgroundTransparency = 1
+SnackbarFrame.ClipsDescendants = true
+SnackbarFrame.Position = UDim2.fromScale(0.5, 0.5)
+SnackbarFrame.Size = UDim2.fromScale(1, 1)
 
 local CenterFrame = Instance.new("Frame")
 CenterFrame.Name = "CenterFrame"
@@ -35,7 +35,7 @@ Padding.Name = "Padding"
 Padding.PaddingBottom = UDim.new(0, 10)
 Padding.Parent = CenterFrame
 
-CenterFrame.Parent = HintsFrame
+CenterFrame.Parent = SnackbarFrame
 
 local RightFrame = Instance.new("Frame")
 RightFrame.Name = "RightFrame"
@@ -60,7 +60,7 @@ Padding1.PaddingBottom = UDim.new(0, 10)
 Padding1.PaddingRight = UDim.new(0, 15)
 Padding1.Parent = RightFrame
 
-RightFrame.Parent = HintsFrame
+RightFrame.Parent = SnackbarFrame
 
 local LeftFrame = Instance.new("Frame")
 LeftFrame.Name = "LeftFrame"
@@ -84,8 +84,8 @@ Padding2.PaddingBottom = UDim.new(0, 10)
 Padding2.PaddingLeft = UDim.new(0, 15)
 Padding2.Parent = LeftFrame
 
-LeftFrame.Parent = HintsFrame
+LeftFrame.Parent = SnackbarFrame
 
-HintsFrame.Parent = Hints
+SnackbarFrame.Parent = Hints
 
 return Hints

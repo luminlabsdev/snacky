@@ -3,23 +3,22 @@
 layout: home
 
 hero:
-  name: "Snacky"
-  text: "An efficient way to show snackbar hints"
-  tagline: My great project tagline
+  text: "Snacky"
+  tagline: An efficient way to show snackbar hints
   actions:
     - theme: brand
-      text: Markdown Examples
+      text: Documentation
       link: /markdown-examples
     - theme: alt
-      text: API Examples
+      text: API Reference
       link: /api-examples
 
 features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: Efficient
+    details: No insane systems in place, just a hint you can control
+  - title: Lightweight
+    details: Snacky is small and will take up only a small bit of client resources
+  - title: Device Friendly
+    details: Works on all devices ranging from consoles to the smallest phones
 ---
 
