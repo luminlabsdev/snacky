@@ -1,0 +1,19 @@
+{
+    "emitLegacyScripts": false,
+    "name": "snacky-dev",
+    "tree": {
+      "$className": "DataModel",
+  
+      "ReplicatedStorage": {
+        "Packages": {
+          "$path": "Packages",
+          "Snacky": {
+            "$path": "src"
+          }
+        },
+        "Tests": {
+          "$path": "tests/client"
+        }
+      }
+    }
+  }
