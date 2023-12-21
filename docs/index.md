@@ -8,17 +8,20 @@ hero:
   actions:
     - theme: brand
       text: Documentation
-      link: /markdown-examples
+      link: /guides/
     - theme: alt
       text: API Reference
-      link: /api-examples
+      link: /api/
 
 features:
-  - title: Efficient
+  - icon: ⚡
+    title: Efficient
     details: No insane systems in place, just a hint you can control
-  - title: Lightweight
+  - icon: 🏋️‍♂️
+    title: Lightweight
     details: Snacky is small and will take up only a small bit of client resources
-  - title: Device Friendly
+  - icon: 📱
+    title: Device Friendly
     details: Works on all devices ranging from consoles to the smallest phones
 ---
 

@@ -42,8 +42,6 @@ Whether or not the snackbar is currently being broadcasted.
 
 * **boolean**
 
----
-
 ## Methods
 
 ### SetStyle
@@ -144,8 +142,6 @@ Destroys the snackbar.
 #### Returns
 
 * **void**
-
----
 
 ## Events
 
