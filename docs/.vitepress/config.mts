@@ -30,6 +30,7 @@ export default defineConfig({
           text: 'Guides',
           items: [
             { text: 'Basic Usage', link: '/guides/' },
+            { text: 'Respond to Input', link: '/guides/input' },
           ]
         }
       ],
