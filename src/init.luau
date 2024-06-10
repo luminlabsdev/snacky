@@ -121,8 +121,8 @@ end
 function Snacky:Broadcast(broadcastText: string, broadcastTime: number?, allowActivation: boolean?)
 	local Element = self._Element:Clone() :: any
 
-	local BroadcastFinished = Signal.new() :: Signal.Signal<>
-	local BroadcastCancelled = Signal.new() :: Signal.Signal<>
+	local BroadcastFinished = Signal.new() :: Signal.Signal<nil>
+	local BroadcastCancelled = Signal.new() :: Signal.Signal<nil>
 	local Activated
 
 	if allowActivation then
