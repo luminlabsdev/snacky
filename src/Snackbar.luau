@@ -1,10 +1,10 @@
 local Snackbar = Instance.new("TextButton")
 Snackbar.Name = "Snackbar"
-Snackbar.FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json")
+Snackbar.FontFace = Font.new("rbxasset://fonts/families/BuilderSans.json")
 Snackbar.RichText = true
 Snackbar.Text = ""
 Snackbar.TextColor3 = Color3.fromRGB(255, 255, 255)
-Snackbar.TextSize = 13
+Snackbar.TextSize = 16
 Snackbar.TextTransparency = 1
 Snackbar.AutoButtonColor = false
 Snackbar.Active = false
@@ -25,10 +25,10 @@ Corner.Parent = Snackbar
 
 local Padding = Instance.new("UIPadding")
 Padding.Name = "Padding"
-Padding.PaddingBottom = UDim.new(0, 10)
-Padding.PaddingLeft = UDim.new(0, 11)
-Padding.PaddingRight = UDim.new(0, 11)
-Padding.PaddingTop = UDim.new(0, 10)
+Padding.PaddingBottom = UDim.new(0, 13)
+Padding.PaddingLeft = UDim.new(0, 14)
+Padding.PaddingRight = UDim.new(0, 14)
+Padding.PaddingTop = UDim.new(0, 13)
 Padding.Parent = Snackbar
 
 return Snackbar

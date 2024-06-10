@@ -4,29 +4,26 @@ Responsible for creating snackbars.
 
 ## Functions
 
-### CreateSnackbar
+### `new`
 
 Creates a new snackbar
 
 #### Parameters
 
-* **properties:** `SnackbarProps`\
-The properties to set on the snackbar
+* **name:** `string`\
+The name of the snackbar
 
-#### Returns
+* **area:** `BroadcastArea?`\
+The location where the snackbar will always be broadcasted to
 
-* **[Snackbar](/api/snackbar)**
+* **style:** `BroadcastStyle`\
+The way that the broadcast is done, either animated or statically
 
----
+* **tweenTime:** `number?`\
+How long both of the tweens are if animations are enabled
 
-### new
-
-Simply an alias for [`CreateSnackbar`](#createsnackbar)
-
-#### Parameters
-
-* **properties:** `SnackbarProps`\
-The properties to set on the snackbar
+* **tweenStyle:** `Enum.EasingStyle?`\
+The way that the animation will appear on any broadcast
 
 #### Returns
 

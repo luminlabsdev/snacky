@@ -7,7 +7,7 @@ hero:
   tagline: An efficient way to show snackbar hints
   actions:
     - theme: brand
-      text: Documentation
+      text: Guide
       link: /guides/
     - theme: alt
       text: API Reference
@@ -16,7 +16,7 @@ hero:
 features:
   - icon: ⚡
     title: Efficient
-    details: No insane systems in place, just a hint you can control
+    details: No insane systems in place, just a snackbar you can control
   - icon: 🏋️‍♂️
     title: Lightweight
     details: Snacky is small and will take up only a small bit of client resources

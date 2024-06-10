@@ -7,11 +7,11 @@ local New = Snacky.new({
     Name = "Example"
 })
 
+local MyBroadcast = New:Broadcast("Click me and I'll be gone forever!")
+
 New:BindToActivation(function()
     print("Click!")
-    if New.IsCurrentlyBroadcasting then
-        New:CancelBroadcast()
-    end
+    MyBroadcast.Cancel()
 end)
 ```
 

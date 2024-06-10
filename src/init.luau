@@ -1,9 +1,9 @@
--- // Package
+-- Package
 
 local Snacky = { }
 local Packages = script.Parent
 
--- // Variables
+-- Variables
 
 local PlayerService = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -13,11 +13,11 @@ local Signal = require(Packages.signal)
 local Player = PlayerService.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
-local Snackbar = require(script.UIElements.Snackbar)
-local SnackbarApp = require(script.UIElements.SnackbarApp)
+local Snackbar = require(script.Snackbar)
+local SnackbarApp: any = require(script.SnackbarApp)
 local SnackbarFrame = SnackbarApp.SnackbarFrame
 
-local BackpackConnections = { }
+local BackpackConnections: {RBXScriptConnection} = { }
 
 local SnackbarInTweenInfoDefault = TweenInfo.new(
 	0.65,
@@ -32,28 +32,20 @@ local SnackbarOutTweenInfoDefault = TweenInfo.new(
 )
 
 local SnackbarBroadcastAreas = {
-	"LeftFrame",
-	"CenterFrame",
-	"RightFrame"
+	Left = "LeftFrame",
+	Center = "CenterFrame",
+	Right = "RightFrame"
 }
 
-Snacky.BroadcastStyle = {
-	Animated = 1,
-	Static = 2,
-}
-
-Snacky.BroadcastArea = {
-	Left = 1,
-	Center = 2,
-	Right = 3,
-}
-
-type SnackbarProps = {
-	Area: number?,
-	Style: number?,
-	TweenStyle: Enum.EasingStyle?,
-	TweenTime: number?,
-	Name: string,
+type BroadcastStyle = "Animated" | "Static"
+type BroadcastArea = "Left" | "Center" | "Right"
+type SnackbarStyle = {
+	CornerRadius: number?,
+	TextColor3: number?,
+	TextTransparency: number?,
+	BackgroundColor3: number?,
+	BackgroundTransparency: number?,
+	FontFace: Font?,
 }
 
 Snacky.__index = Snacky
@@ -61,96 +53,61 @@ Snacky.__index = Snacky
 SnackbarApp.Parent = PlayerGui
 SnackbarApp.Archivable = false
 
--- // Functions
+-- Functions
 
-function Snacky.CreateSnackbar(properties: SnackbarProps)
+local function New(name: string, area: BroadcastArea?, style: BroadcastStyle?, tweenTime: number?, tweenStyle: Enum.EasingStyle?)
 	local self = setmetatable({ }, Snacky)
 	local SnackbarClone = Snackbar:Clone()
 	
 	self._Element = SnackbarClone
 	
-	self.BroadcastArea = properties.Area or Snacky.BroadcastArea.Center
-	self.BroadcastStyle = properties.Style or Snacky.BroadcastStyle.Animated
-	self.BroadcastText = ""
-	self.CurrentBroadcastCancelled = false
-	self.CurrentlyBroadcasting = false
+	self.BroadcastArea = area or "Center"
+	self.BroadcastStyle = style or "Animated"
+	self.CurrentlyBroadcasting = {}
+
+	self.BroadcastStarted = Signal.new() :: Signal.Signal<string, number>
 	
-	self.BroadcastFinished = Signal() :: Signal.Signal<>
-	self.BroadcastStarted = Signal() :: Signal.Signal<string, number>
-	self.BroadcastCancelled = Signal() :: Signal.Signal<>
+	self._TweenBackgroundTransparency = 0.3
+	self._TweenTextTransparency = 0
+	self._TweenTime = tweenTime
+	self._TweenStyle = tweenStyle
+	self._TweenInfo = {}
+
+	SnackbarClone.Name = name
 	
-	self._ActivatedConnection = nil
-	self._TweenTime = properties.TweenTime
-	self._TweenStyle = properties.TweenStyle
-	self._Tweens = {
-		[true] = nil,
-		[false] = nil,
-	}
-	
-	SnackbarClone.Name = properties.Name
-	SnackbarClone.Parent = SnackbarFrame:FindFirstChild(
-		SnackbarBroadcastAreas[self.BroadcastArea]
-	)
-	
-	if self.BroadcastStyle == Snacky.BroadcastStyle.Animated then
-		local TweenInfoToUse = {
-			In = nil,
-			Out = nil,
-		}
-		
-		if properties.TweenTime and properties.TweenStyle then
-			TweenInfoToUse.In = TweenInfo.new(
-				properties.TweenTime,
-				properties.TweenStyle,
+	if self.BroadcastStyle == "Animated" then
+		if tweenTime and tweenStyle then
+			self._TweenInfo.In = TweenInfo.new(
+				tweenTime,
+				tweenStyle,
 				Enum.EasingDirection.In
 			)
 			
-			TweenInfoToUse.Out = TweenInfo.new(
-				properties.TweenTime,
-				properties.TweenStyle,
+			self._TweenInfo.Out = TweenInfo.new(
+				tweenTime,
+				tweenStyle,
 				Enum.EasingDirection.Out
 			)
 		else
-			TweenInfoToUse.In = SnackbarInTweenInfoDefault
-			TweenInfoToUse.Out = SnackbarOutTweenInfoDefault
+			self._TweenInfo.In = SnackbarInTweenInfoDefault
+			self._TweenInfo.Out = SnackbarOutTweenInfoDefault
 		end
-		
-		self._Tweens[true] = {
-			Background = TweenService:Create(self._Element, TweenInfoToUse.In, {BackgroundTransparency = 0.3}),
-			Text = TweenService:Create(self._Element, TweenInfoToUse.In, {TextTransparency = 0})
-		}
-		
-		self._Tweens[false] = {
-			Background = TweenService:Create(self._Element, TweenInfoToUse.Out, {BackgroundTransparency = 1}),
-			Text = TweenService:Create(self._Element, TweenInfoToUse.Out, {TextTransparency = 1})
-		}
 	end
 	
 	return self
 end
 
-function Snacky:SetStyle(properties: {
-		CornerRadius: number?,
-		TextColor3: number?,
-		BackgroundColor3: number?,
-		BackgroundTransparency: number?,
-		FontFace: Font?,
-	})
-	
+function Snacky:SetStyle(properties: SnackbarStyle)
 	local Element = self._Element
 	
 	for property, value in properties do
 		if property == "CornerRadius" then
-			Element.Corner.CornerRadius = UDim.new(0, value)
+			Element.Corner.CornerRadius = UDim.new(0, value :: number)
 			continue
 		end
 		
-		if property == "BackgroundTransparency" then
-			self._Tweens[true].Background = TweenService:Create(Element, TweenInfo.new(
-					self._TweenTime,
-					self._TweenStyle,
-					Enum.EasingDirection.In
-				))
+		if property == "BackgroundTransparency" or "TextTransparency" then
+			self[`_Tween{property}`] = value
 		end
 		
 		Element[property] = value
@@ -161,130 +118,130 @@ function Snacky:SetOrder(order: number)
 	self._Element.LayoutOrder = order
 end
 
-function Snacky:BindToActivated(func: (inputType: Enum.UserInputType) -> ())
-	local Element: TextButton = self._Element
-	
-	Element.Active = true
-	Element.AutoButtonColor = true
+function Snacky:Broadcast(broadcastText: string, broadcastTime: number?, allowActivation: boolean?)
+	local Element = self._Element:Clone() :: any
 
-	self._ActivatedConnection = Element.Activated:Connect(function(input)
-		func(input.UserInputType)
-	end)
-end
+	local BroadcastFinished = Signal.new() :: Signal.Signal<>
+	local BroadcastCancelled = Signal.new() :: Signal.Signal<>
+	local Activated
 
-function Snacky:UnbindFromActivated()
-	local Element: TextButton = self._Element
-	
-	Element.Active = false
-	Element.AutoButtonColor = false
-	
-	self._ActivatedConnection:Disconnect()
-	self._ActivatedConnection = nil
-end
-
-function Snacky:CancelBroadcast(destroy: boolean?)
-	local Element: TextButton = self._Element
-	
-	self.CurrentBroadcastCancelled = true
-	self.BroadcastCancelled:Fire()
-	
-	if self.BroadcastStyle == Snacky.BroadcastStyle.Animated then
-		local TweenToPlay: {[string]: Tween} = self._Tweens[false]
-		
-		TweenToPlay.Background.Completed:Once(function()
-			Element.Visible = false
-			if destroy then
-				self:Destroy()
-			end
+	if allowActivation then
+		Activated = Signal.new() :: Signal.Signal<Enum.UserInputType>
+		Element.AutoButtonColor = true
+		self._ActivatedConnection = Element.Activated:Connect(function(userInputType)
+			Activated:Fire(userInputType)
 		end)
-		
-		self.CurrentlyBroadcasting = false
-		for _, tween in TweenToPlay do
-			tween:Play()
-		end
-	elseif self.BroadcastStyle == Snacky.BroadcastStyle.Static then
-		Element.Visible = false
-		self.CurrentlyBroadcasting = false
-
-		if destroy then
-			self:Destroy()
-		end
 	end
-end
 
-function Snacky:Broadcast(broadcastText: string, broadcastTime: number?, destroyWhenFinished: boolean?)
-	local Element: TextButton = self._Element
-	
+	local InTweens: {[string]: Tween} = {
+		Background = TweenService:Create(Element, self._TweenInfo.In, {BackgroundTransparency = self._TweenBackgroundTransparency}),
+		Text = TweenService:Create(Element, self._TweenInfo.In, {TextTransparency = self._TweenTextTransparency})
+	}
+	local OutTweens: {[string]: Tween} = {
+		Background = TweenService:Create(Element, self._TweenInfo.Out, {BackgroundTransparency = 1}),
+		Text = TweenService:Create(Element, self._TweenInfo.Out, {TextTransparency = 1})
+	}
+
+	table.insert(self.CurrentlyBroadcasting, Element)
 	Element.Text = broadcastText
-	self.BroadcastText = broadcastText
+	Element.Parent = SnackbarFrame:FindFirstChild(
+		SnackbarBroadcastAreas[self.BroadcastArea]
+	)
 	
-	task.defer(function()
+	local Thread
+	Thread = task.defer(function()
 		self.BroadcastStarted:Fire(broadcastText, broadcastTime)
-		self.CurrentBroadcastCancelled = false
-		
-		if self.BroadcastStyle == Snacky.BroadcastStyle.Animated then
-			local TweenToPlay: {[string]: Tween} = self._Tweens[true]
-			self.CurrentlyBroadcasting = true
+		if self.BroadcastStyle == "Animated" then
+			Element.Visible = true
 			
-			for _, tween in TweenToPlay do
-				Element.Visible = true
+			if self._ActivatedConnection then
+				Element.Active = true
+			end
+			
+			for _, tween in InTweens do
 				tween:Play()
+				print("HI")
 			end
 
 			if not broadcastTime then
 				return
 			end
 
-			task.wait(broadcastTime + self._Tweens[true].Background.TweenInfo.Time)
-
-			if self.CurrentBroadcastCancelled then
-				self.CurrentlyBroadcasting = false
-				return
-			end
-
-			local NewTweenToPlay: {[string]: Tween} = self._Tweens[false]
-			
-			NewTweenToPlay.Background.Completed:Once(function()
-				Element.Visible = false
-				if destroyWhenFinished then
-					self:Destroy()
-				end
+			BroadcastCancelled:Once(function()
+				task.cancel(Thread)
 			end)
 
-			self.BroadcastFinished:Fire()
-			self.CurrentlyBroadcasting = false
+			task.wait(broadcastTime + InTweens.Background.TweenInfo.Time)
+			
+			OutTweens.Background.Completed:Once(function()
+				Element.Visible = false
+				Element:Destroy()
+				BroadcastFinished:Fire()
 
-			for key, tween in NewTweenToPlay do
+				table.clear(InTweens)
+				table.clear(OutTweens)
+				table.remove(self.CurrentlyBroadcasting, table.find(self.CurrentlyBroadcasting, Element))
+			end)
+
+			Element.Active = false
+
+			for _, tween in OutTweens do
 				tween:Play()
 			end
-		elseif self.BroadcastStyle == Snacky.BroadcastStyle.Static then
+		else
 			Element.Visible = true
-			self.CurrentlyBroadcasting = true
+
+			if self._ActivatedConnection then
+				Element.Active = true
+			end
 
 			if not broadcastTime then
 				return
 			end
 
+			BroadcastCancelled:Once(function()
+				task.cancel(Thread)
+			end)
+
 			task.wait(broadcastTime)
+
 			Element.Visible = false
-
-			if self.CurrentBroadcastCancelled then
-				return
-			end
-
+			Element.Active = false
+			Element:Destroy()
 			self.BroadcastFinished:Fire()
-			self.CurrentlyBroadcasting = false
 
-			if destroyWhenFinished then
-				self:Destroy()
-			end
+			table.remove(self.CurrentlyBroadcasting, table.find(self.CurrentlyBroadcasting, Element))
 		end
 	end)
+
+	return {
+		Cancel = function()
+			if self.BroadcastStyle == "Animated" then
+				OutTweens.Background.Completed:Once(function()
+					Element.Visible = false
+					Element:Destroy()
+					BroadcastFinished:Fire()
+	
+					table.clear(InTweens)
+					table.clear(OutTweens)
+				end)
+	
+				for _, tween in OutTweens do
+					tween:Play()
+				end
+			else
+				Element.Visible = false
+				Element:Destroy()
+				BroadcastFinished:Fire()
+			end
+		end,
+		BroadcastFinished = BroadcastFinished,
+		BroadcastCancelled = BroadcastCancelled,
+		Activated = Activated,
+	}
 end
 
 function Snacky:Destroy()
-	self._Element:Destroy()
-	
 	for _, prop in self do
 		if typeof(prop) == "RBXScriptConnection" then
 			prop:Disconnect()
@@ -294,11 +251,13 @@ function Snacky:Destroy()
 	end
 end
 
--- // Connections
+-- Connections
 
 Player.CharacterAdded:Connect(function(character)
-	for _, connection in BackpackConnections do
-		connection:Disconnect()
+	if #BackpackConnections ~= 0 then
+		for _, connection in BackpackConnections do
+			connection:Disconnect()
+		end
 	end
 
 	local Backpack = Player:WaitForChild("Backpack")
@@ -328,8 +287,8 @@ Player.CharacterAdded:Connect(function(character)
 	end))
 end)
 
-Snacky.new = Snacky.CreateSnackbar
+-- Actions
 
--- // Actions
-
-return Snacky
+return {
+	new = New,
+}

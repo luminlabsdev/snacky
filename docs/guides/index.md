@@ -15,12 +15,12 @@ This will create a new snackbar named "Example". Although, this does not do anyt
 New:Broadcast("Hello! This is a test broadcast", 5)
 ```
 
-Now, the first parameter is the text you want to display. This will show on the snackbar for the current broadcast only, it will change depending on how you change the parameters of the function. The second parameter is how much time it will stay on the screen for. In the example, I chose 5 seconds as this is usually enough time for the user to notice it. If you would like to display it infinitely, leave the param blank (nil). To cancel and infinitely shown snackbar, you can use the `CancelBroadcast` function.
+Now, the first parameter is the text you want to display. This will show on the snackbar for the current broadcast only, it will change depending on how you change the parameters of the function. The second parameter is how much time it will stay on the screen for. In the example, I chose 5 seconds as this is usually enough time for the user to notice it. If you would like to display it infinitely, leave the param blank (nil). To cancel and infinitely shown snackbar, you can use the `Cancel` function which is returned by the broadcast itself.
 
 ```lua
-New:Broadcast("Hello! This is a test broadcast, which is infinite")
+local MyBroadcast = New:Broadcast("Hello! This is a test broadcast, which is infinite")
 task.wait(50)
-New:CancelBroadcast()
+MyBroadcast.Cancel()
 ```
 
 The above can be implemented identically by using 50 as the time parameter, but you could use a signal that is fired to cancel it as well for example.

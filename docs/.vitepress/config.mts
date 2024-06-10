@@ -5,7 +5,7 @@ export default defineConfig({
   head: [['link', { rel: 'icon', href: '/favicon.ico' }]],
   base: "/Snacky/",
   title: "Snacky",
-  titleTemplate: "Canary Docs",
+  titleTemplate: ":title - Lumin",
   description: "An efficient way to show snackbar hints",
   lastUpdated: true,
   lang: 'en-us',
@@ -40,7 +40,8 @@ export default defineConfig({
           text: 'API Reference',
           items: [
             { text: 'Snacky', link: '/api/' },
-            { text: 'Snackbar', link: '/api/snackbar' }
+            { text: 'Snackbar', link: '/api/snackbar' },
+            { text: 'Broadcast', link: '/api/broadcast' },
           ]
         },
       ],
@@ -53,17 +54,12 @@ export default defineConfig({
     },
 
     editLink: {
-      pattern: 'https://github.com/canary-softworks/Snacky/edit/main/docs/:path'
-    },
-
-    footer: {
-      message: 'Built with VitePress',
-      copyright: 'Copyright © 2021 - 2024 Canary Softworks'
+      pattern: 'https://github.com/lumin-dev/Snacky/edit/main/docs/:path'
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/canary-softworks/Snacky' },
-      { icon: 'discord', link: 'https://discord.gg/cwwcZtqJAt' },
+      { icon: 'github', link: 'https://github.com/lumin-dev/Snacky' },
+      { icon: 'discord', link: 'https://lumin-dev.github.io/link/discord' },
     ]
   }
 })

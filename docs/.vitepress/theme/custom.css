@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+:root {
+	--vp-c-bg: #e6e6e6;
+	--vp-c-bg-alt: #d2d2d2;
+	--vp-c-brand-1: #e41e17;
+	--vp-c-brand-2: #f76b66;
+	--vp-c-brand-3: #dd443e;
+}
+
+.dark {
+	--vp-c-bg: #121212;
+	--vp-c-bg-alt: #161616;
+	--vp-c-brand-1: #fd7d76;
+	--vp-c-brand-2: #df6561;
+	--vp-c-brand-3: #dd443e;
+}

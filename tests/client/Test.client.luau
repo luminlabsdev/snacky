@@ -1,23 +1,18 @@
 local Snacky = require(game.ReplicatedStorage.Packages.Snacky)
 
-local New = Snacky.new({
-    Name = "test"
-})
-
-local NewInfinite = Snacky.new({
-    Name = "test2"
-})
+local New = Snacky.new("test")
+local NewInfinite = Snacky.new("test2")
 
 New.BroadcastStarted:Connect(function(text, time)
     print(text, time, "Starting")
 end)
 
-New:BindToActivated(function()
-    print("Cancelled")
-    New:CancelBroadcast(false)
-end)
+local InfBroadcast = NewInfinite:Broadcast("Press to cancel this current broadcast!", nil, true)
 
-NewInfinite:Broadcast("This snackbar is infinte")
+InfBroadcast.Activated:Connect(function()
+    print("Cancelled")
+    InfBroadcast.Cancel()
+end)
 
 while true do
     task.wait(5)
