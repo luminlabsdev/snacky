@@ -58,31 +58,6 @@ The layout order that the snackbar should be at
 
 ---
 
-### `BindToActivated`
-
-Binds a function to activation, which is when the snackbar is clicked by the user.
-
-#### Parameters
-
-* **func:** `(inputType: Enum.UserInputType) -> ()`\
-The function that should run on activation
-
-#### Returns
-
-* **void**
-
----
-
-### `UnbindFromActivated`
-
-Unbinds the function set to run when activated, if one is set.
-
-#### Returns
-
-* **void**
-
----
-
 ### `Broadcast`
 
 Broadcasts the hint to the current user, attempting to broadcast multiple times will not clone the GUI object and will ignore further requests.
@@ -94,6 +69,9 @@ The text that should be displayed on the GUI object upon broadcast
 
 * **broadcastTime:** `number?`\
 The amount of seconds the snackbar should stay up for, leave this nil for infinite time
+
+* **allowActivation:** `boolean?`\
+Allows the snackbar to be interacted with, for only the current broadcast
 
 #### Returns
 

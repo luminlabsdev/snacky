@@ -3,9 +3,7 @@
 It's fairly easy to setup and start using Snacky. To create a new hint, you can enter the following code into your script:
 
 ```lua
-local New = Snacky.new({
-    Name = "Example"
-})
+local New = Snacky.new("Example")
 ```
 
 This will create a new snackbar named "Example". Although, this does not do anything on the user-facing side. To show the hint to the user, we must use the `Broadcast` function. This will play the animations and display the provided text.
